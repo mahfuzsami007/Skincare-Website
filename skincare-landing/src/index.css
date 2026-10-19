@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-mont: var(--font-montserrat), system-ui, sans-serif;
+  --font-abril: var(--font-abril), Georgia, serif;
+  --font-cata: var(--font-catamaran), system-ui, sans-serif;
+
+  /* Colors */
+  --color-ink: #000000;
+  --color-muted: #555555;
+  --color-soft: #999999;
+  --color-line: #e5e5e5;
+  --color-announce: #f7f7f7;
+  --color-accent: #dd1616;
+
+  /* Typography */
+  --text-menu: 13px;
+  --text-section: 42px;
+
+  /* Letter Spacing */
+  --tracking-menu: 0.05em;
+  --tracking-wide3: 0.18em;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-ink font-mont antialiased;
+}
+
+@utility container-grid {
+  @apply mx-auto w-full max-w-[1300px] px-5;
+}
