@@ -13,6 +13,7 @@ import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
 import { Cart } from "./pages/Cart"; // <-- ADD THIS IMPORT
 import { newArrivals, bestSelling, saleProducts, type Product } from "./data/products";
+import { Shop } from "./pages/Shop";
 
 export default function App() {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
@@ -49,6 +50,10 @@ export default function App() {
               <Route element={<ProtectedRoute requireAdmin={true} />}>
                 <Route path="/admin/products" element={<div className="py-20 text-center">Admin Products Table Here</div>} />
               </Route>
+              <Route 
+                       path="/shop" 
+                         element={<Shop onQuickView={setQuickViewProduct} />} 
+              />
 
             </Route>
           </Routes>
