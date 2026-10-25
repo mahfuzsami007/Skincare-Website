@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, Search, User, X } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { useAuth } from "../../context/AuthContext"; // Import Auth Hook
 import logo from "../../assets/logo/skincarelogo-1.png"; 
 
-// 1. ADDED SUBMENUS TO MATCH THE ORIGINAL SITE
 const navLinks = [
   { 
     label: "BRANDS", 
@@ -36,10 +36,11 @@ const navLinks = [
 ];
 
 export function Header() {
+  const { isAuthenticated, user, logout } = useAuth(); // Get Auth State
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<string | null>(null); // Mega menu state
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -59,23 +60,22 @@ export function Header() {
           "fixed left-0 right-0 top-0 z-50 w-full border-b border-line bg-white transition-shadow duration-300",
           scrolled && "shadow-[0_2px_10px_rgba(0,0,0,0.05)]"
         )}
-        onMouseLeave={() => setActiveMenu(null)} // Close menu when leaving header
+        onMouseLeave={() => setActiveMenu(null)}
       >
         <div className="container-grid">
           <div className="grid h-[90px] grid-cols-3 items-center">
             
             {/* Left: Nav Links */}
-            <nav className="hidden items-center gap-5 lg:flex">
+            <nav className="hidden items-center gap-6 lg:flex">
               {navLinks.map((item) => (
                 <div 
                   key={item.label} 
-                  className="h-[90px] flex items-center" // Full height to make hover seamless
+                  className="h-[90px] flex items-center"
                   onMouseEnter={() => setActiveMenu(item.submenu ? item.label : null)}
                 >
                   <Link
                     to={item.href}
-                    // 2. FIXED FONT: 13px, medium weight, Montserrat
-                    className="font-mont text-[11px] font-medium uppercase tracking-[0.05em] text-ink transition-colors hover:text-muted"
+                    className="font-mont text-[13px] font-medium uppercase tracking-[0.05em] text-ink transition-colors hover:text-muted"
                   >
                     {item.label}
                   </Link>
@@ -102,8 +102,19 @@ export function Header() {
 
             {/* Right: Actions */}
             <div className="flex items-center justify-end gap-5 sm:gap-6">
-              <Link to="/account" className="flex h-10 w-8 items-center justify-center hover:text-muted transition">
+              {/* Dynamic Account Link */}
+              <Link 
+                to={isAuthenticated ? "/dashboard" : "/login"} 
+                aria-label="Account" 
+                className="group flex h-10 items-center justify-center gap-2 hover:text-muted transition"
+              >
                 <User size={22} strokeWidth={1.5} />
+                {/* Show name on desktop if logged in */}
+                {isAuthenticated && (
+                  <span className="hidden xl:block font-mont text-[13px] font-medium uppercase tracking-[0.05em] text-ink group-hover:text-muted">
+                    {user?.name.split(" ")[0]}
+                  </span>
+                )}
               </Link>
               
               <Link to="/cart" className="flex items-center gap-1.5 font-mont text-[13px] font-medium uppercase tracking-[0.05em] text-ink hover:text-muted transition">
@@ -128,7 +139,7 @@ export function Header() {
           </div>
         </div>
 
-        {/* 3. MEGA MENU DROPDOWN */}
+        {/* Mega Menu Dropdown */}
         <div 
           className={cn(
             "absolute left-0 top-[90px] w-full overflow-hidden bg-white shadow-[0_10px_30px_rgba(0,0,0,0.05)] transition-all duration-300 ease-in-out",
@@ -160,19 +171,40 @@ export function Header() {
         </div>
       </header>
 
-      {/* Mobile Slide-in Menu (Same as before) */}
+      {/* Mobile Slide-in Menu */}
       <div className={cn("fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300 lg:hidden", mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0")} onClick={() => setMobileMenuOpen(false)} />
-      <div className={cn("fixed bottom-0 left-0 top-0 z-[70] w-[80vw] max-w-[320px] bg-[#111] text-white transition-transform duration-300 ease-in-out lg:hidden", mobileMenuOpen ? "translate-x-0" : "-translate-x-full")}>
+      
+      <div className={cn("fixed bottom-0 left-0 top-0 z-[70] w-[80vw] max-w-[320px] bg-[#111] text-white transition-transform duration-300 ease-in-out lg:hidden flex flex-col", mobileMenuOpen ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex items-center justify-between border-b border-gray-800 p-6">
           <span className="font-abril text-2xl text-white">MENU</span>
           <button onClick={() => setMobileMenuOpen(false)}><X size={24} /></button>
         </div>
-        <nav className="flex flex-col gap-6 p-6">
+        
+        <nav className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
           {navLinks.map((item) => (
             <Link key={item.label} to={item.href} className="font-mont text-[14px] font-medium uppercase tracking-widest text-gray-300 hover:text-white">
               {item.label}
             </Link>
           ))}
+
+          <div className="mt-auto border-t border-gray-800 pt-6">
+            {isAuthenticated ? (
+              <button 
+                onClick={() => { logout(); setMobileMenuOpen(false); }}
+                className="font-mont text-[14px] font-medium uppercase tracking-widest text-red-400 hover:text-red-300"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link 
+                to="/login" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="font-mont text-[14px] font-medium uppercase tracking-widest text-white hover:text-gray-300"
+              >
+                Login / Register
+              </Link>
+            )}
+          </div>
         </nav>
       </div>
     </>

@@ -1,20 +1,41 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Admin\ProductController;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Public Routes
+// --- Public Routes ---
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Protected Routes (Requires Token)
+// Public Product Routes (For your React Frontend)
+Route::get('/products', function () {
+    return response()->json(
+        Product::where('is_active', true)->with(['category', 'brand'])->latest()->get()
+            ->map(function ($product) {
+                // Format image URL for the frontend
+                $product->image_url = $product->getFirstMediaUrl('products') ?: 'https://via.placeholder.com/600';
+                return $product;
+            })
+    );
+});
+
+Route::get('/products/{slug}', function ($slug) {
+    $product = Product::where('slug', $slug)->with(['category', 'brand'])->firstOrFail();
+    $product->image_url = $product->getFirstMediaUrl('products') ?: 'https://via.placeholder.com/600';
+    return response()->json($product);
+});
+
+// --- Protected Routes (All logged-in users) ---
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [AuthController::class, 'profile']);
     
-    // We will add Admin-only routes here in Phase 4
-    // Route::middleware('role:admin')->group(function () {
-    //     ...
-    // });
+    // --- Admin Only Routes ---
+    Route::middleware('role:admin')->prefix('admin')->group(function () {
+        Route::apiResource('products', ProductController::class);
+        // You can add Categories, Brands, Orders here later
+    });
 });
