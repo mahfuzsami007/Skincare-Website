@@ -4,6 +4,7 @@ import { Menu, Search, User, X } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useAuth } from "../../context/AuthContext"; // Import Auth Hook
 import logo from "../../assets/logo/skincarelogo-1.png"; 
+import { useCart } from "../../context/CartContext";
 
 const navLinks = [
   { 
@@ -41,6 +42,7 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const { cartCount } = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -118,8 +120,8 @@ export function Header() {
               </Link>
               
               <Link to="/cart" className="flex items-center gap-1.5 font-mont text-[13px] font-medium uppercase tracking-[0.05em] text-ink hover:text-muted transition">
-                <span className="hidden sm:block">CART</span>
-                <span className="text-muted">(৳0.00)</span>
+                  <span className="hidden sm:block">CART</span>
+                  <span className="text-muted">({cartCount})</span>
               </Link>
 
               <button onClick={() => setSearchOpen(!searchOpen)} className="flex h-10 w-8 items-center justify-center hover:text-muted transition">

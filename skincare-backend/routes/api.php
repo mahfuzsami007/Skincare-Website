@@ -27,11 +27,15 @@ Route::get('/products/{slug}', function ($slug) {
     $product->image_url = $product->getFirstMediaUrl('products') ?: 'https://via.placeholder.com/600';
     return response()->json($product);
 });
-
+   
 // --- Protected Routes (All logged-in users) ---
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [AuthController::class, 'profile']);
+     Route::get('/cart', [\App\Http\Controllers\Api\CartController::class, 'index']);
+    Route::post('/cart', [\App\Http\Controllers\Api\CartController::class, 'store']);
+    Route::put('/cart/{cartItem}', [\App\Http\Controllers\Api\CartController::class, 'update']);
+    Route::delete('/cart/{cartItem}', [\App\Http\Controllers\Api\CartController::class, 'destroy']);
     
     // --- Admin Only Routes ---
     Route::middleware('role:admin')->prefix('admin')->group(function () {

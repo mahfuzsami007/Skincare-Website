@@ -1,9 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, Heart, Star } from "lucide-react";
 import type { Product } from "../../data/products";
+import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
 
-// Add onQuickView prop
 export function ProductCard({ product, onQuickView }: { product: Product, onQuickView: (p: Product) => void }) {
+  const { isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+
   const off = product.salePrice && product.salePrice < product.price
     ? Math.round(((product.price - product.salePrice) / product.price) * 100)
     : null;
@@ -12,10 +17,29 @@ export function ProductCard({ product, onQuickView }: { product: Product, onQuic
     return `৳${amount.toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  // Placeholder for Wishlist (Requires Auth/Backend)
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
-    alert("Wishlist requires login. Backend coming soon!");
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    alert("Wishlist backend coming soon!");
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (product.soldOut) {
+      navigate(`/product/${product.slug}`);
+      return;
+    }
+
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+
+    await addToCart(product.id, 1);
   };
 
   return (
@@ -35,10 +59,8 @@ export function ProductCard({ product, onQuickView }: { product: Product, onQuic
           />
         </Link>
 
-        {/* Hover Actions */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           <div className="pointer-events-auto flex items-center gap-2">
-            {/* Trigger Quick View */}
             <button 
               onClick={(e) => {
                 e.preventDefault();
@@ -50,7 +72,6 @@ export function ProductCard({ product, onQuickView }: { product: Product, onQuic
               <Eye size={16} />
             </button>
             
-            {/* Trigger Wishlist */}
             <button 
               onClick={handleWishlist}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md transition hover:bg-black hover:text-white"
@@ -88,9 +109,12 @@ export function ProductCard({ product, onQuickView }: { product: Product, onQuic
           )}
         </div>
 
-        <Link to={`/product/${product.slug}`} className="mt-1 inline-block font-mont text-[12px] font-bold uppercase tracking-menu text-ink hover:text-muted transition-colors">
+        <button 
+          onClick={handleAddToCart}
+          className="mt-1 inline-block font-mont text-[12px] font-bold uppercase tracking-menu text-ink hover:text-muted transition-colors"
+        >
           {product.soldOut ? "Read more" : "Add to cart"}
-        </Link>
+        </button>
       </div>
     </div>
   );
