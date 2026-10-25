@@ -106,18 +106,14 @@ export function Header() {
             <div className="flex items-center justify-end gap-5 sm:gap-6">
               {/* Dynamic Account Link */}
               <Link 
-                to={isAuthenticated ? "/dashboard" : "/login"} 
-                aria-label="Account" 
-                className="group flex h-10 items-center justify-center gap-2 hover:text-muted transition"
+                    to={isAuthenticated ? "/account" : "/login"} 
+                    aria-label="Account" 
+                    className="group flex h-10 items-center justify-center gap-2 hover:text-muted transition"
               >
                 <User size={22} strokeWidth={1.5} />
-                {/* Show name on desktop if logged in */}
-                {isAuthenticated && (
-                  <span className="hidden xl:block font-mont text-[13px] font-medium uppercase tracking-[0.05em] text-ink group-hover:text-muted">
-                    {user?.name.split(" ")[0]}
-                  </span>
-                )}
-              </Link>
+                    {/* ... */}
+                  </Link>
+  
               
               <Link to="/cart" className="flex items-center gap-1.5 font-mont text-[13px] font-medium uppercase tracking-[0.05em] text-ink hover:text-muted transition">
                   <span className="hidden sm:block">CART</span>

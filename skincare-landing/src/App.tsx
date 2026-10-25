@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import { CartProvider } from "./context/CartContext"; // Make sure this is imported
+import { CartProvider } from "./context/CartContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { MainLayout } from "./layouts/MainLayout";
 import { HeroSlider } from "./components/home/HeroSlider";
@@ -10,10 +10,17 @@ import { ProductSection } from "./components/home/ProductSection";
 import { QuickViewModal } from "./components/home/QuickViewModal";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
-import { Dashboard } from "./pages/Dashboard";
-import { Cart } from "./pages/Cart"; // <-- ADD THIS IMPORT
-import { newArrivals, bestSelling, saleProducts, type Product } from "./data/products";
+import { Cart } from "./pages/Cart";
 import { Shop } from "./pages/Shop";
+import { newArrivals, bestSelling, saleProducts, type Product } from "./data/products";
+
+// Account Layout & Pages
+import { AccountLayout } from "./pages/account/AccountLayout";
+import { DashboardHome } from "./pages/account/DashboardHome";
+import { Orders } from "./pages/account/Orders";
+import { Offers } from "./pages/account/Offers";
+import { Addresses } from "./pages/account/Addresses";
+import { AccountDetails } from "./pages/account/AccountDetails";
 
 export default function App() {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
@@ -25,6 +32,7 @@ export default function App() {
           <Routes>
             <Route element={<MainLayout />}>
               
+              {/* Public Pages */}
               <Route 
                 path="/" 
                 element={
@@ -38,22 +46,21 @@ export default function App() {
                   </>
                 } 
               />
-
+              <Route path="/shop" element={<Shop onQuickView={setQuickViewProduct} />} />
+              <Route path="/cart" element={<Cart />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/cart" element={<Cart />} /> {/* <-- ADD THIS ROUTE */}
 
+              {/* Protected Account Routes */}
               <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/account" element={<AccountLayout />}>
+                  <Route index element={<DashboardHome />} />
+                  <Route path="orders" element={<Orders />} />
+                  <Route path="offers" element={<Offers />} />
+                  <Route path="addresses" element={<Addresses />} />
+                  <Route path="details" element={<AccountDetails />} />
+                </Route>
               </Route>
-
-              <Route element={<ProtectedRoute requireAdmin={true} />}>
-                <Route path="/admin/products" element={<div className="py-20 text-center">Admin Products Table Here</div>} />
-              </Route>
-              <Route 
-                       path="/shop" 
-                         element={<Shop onQuickView={setQuickViewProduct} />} 
-              />
 
             </Route>
           </Routes>

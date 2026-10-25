@@ -75,6 +75,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cart', [CartController::class, 'store']);
     Route::put('/cart/{cartItem}', [CartController::class, 'update']);
     Route::delete('/cart/{cartItem}', [CartController::class, 'destroy']);
+
+        Route::put('/profile', [\App\Http\Controllers\Api\AccountController::class, 'updateProfile']);
+    
+    Route::get('/addresses', [\App\Http\Controllers\Api\AccountController::class, 'getAddresses']);
+    Route::post('/addresses', [\App\Http\Controllers\Api\AccountController::class, 'saveAddress']);
+    
+    Route::get('/orders', [\App\Http\Controllers\Api\AccountController::class, 'getOrders']);
     
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::apiResource('products', ProductController::class);
