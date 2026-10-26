@@ -33,23 +33,6 @@ A modern, fast, and secure full-stack e-commerce application for skincare produc
 
 ---
 
-## 📁 Project Structure
-text
-├── skincare-backend/      # Laravel REST API
-│   ├── app/Models/         # Database Models (Product, User, Cart, etc.)
-│   ├── app/Http/Controllers/Api/ # API Controllers
-│   ├── routes/api.php      # API Routes
-│   └── database/seeders/   # Database Seeders
-│
-└── skincare-frontend/      # React Vite App
-    ├── src/components/     # Reusable UI Components
-    ├── src/pages/          # Page Components (Shop, Cart, Dashboard)
-    ├── src/context/        # React Context (Auth, Cart)
-    ├── src/lib/            # Axios Config & Utilities
-    └── src/data/           # Static mock data (if applicable)
-
----
-
 ## 💻 Prerequisites
 
 Before you begin, ensure you have the following installed:
@@ -103,10 +86,10 @@ Start the Laravel development server:
 ### 3. Frontend Setup (React)
 
 Open a new terminal window and navigate to the frontend folder:
-cd skincare-frontend
+- cd skincare-frontend
 
 Install Node dependencies:
-npm install
+- npm install
 
 Start the Vite development server:
-npm run dev
+- npm run dev
