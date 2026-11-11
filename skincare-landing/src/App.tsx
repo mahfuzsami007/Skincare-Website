@@ -35,6 +35,7 @@ import { AdminSales } from "./pages/admin/AdminSales";
 import { AdminCustomers } from "./pages/admin/AdminCustomers";
 import { AdminCTA } from "./pages/admin/AdminCTA";
 import { AdminOrders } from "./pages/admin/AdminOrders";
+import { AdminProductForm } from "./pages/admin/AdminProductForm";
 
 export default function App() {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
@@ -94,7 +95,8 @@ export default function App() {
                   
                   <Route path="products">
                     <Route index element={<AdminProducts />} />
-                    <Route path="new" element={<AdminProducts isAddNew={true} />} />
+                   <Route path="new" element={<AdminProductForm isAddNew={true} />} />
+                    <Route path="edit/:id" element={<AdminProductForm />} />
                   </Route>
                   
                   <Route path="verification" element={<AdminPaymentVerification />} />

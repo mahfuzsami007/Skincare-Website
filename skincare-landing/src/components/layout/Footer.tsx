@@ -2,10 +2,43 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 const columns = [
-  { title: "Customer Service", links: ["Shop", "Help & Contact us", "Terms & Conditions", "Refund, Return Policy & Order Cancellations", "Showroom Address"] },
-  { title: "Company", links: ["Wholesale Inquiries & Business Collaboration", "Skin Care Blog", "About Our Company", "Privacy policy"] },
-  { title: "Social Media", links: ["Facebook Page", "Facebook Group", "Instagram", "Tiktok"] },
-  { title: "Profile", links: ["My account", "Checkout", "Wishlist", "Cart"] }
+  { 
+    title: "Customer Service", 
+    links: [
+      { name: "Shop", path: "/shop" },
+      { name: "Help & Contact us", path: "#" },
+      { name: "Terms & Conditions", path: "#" },
+      { name: "Refund, Return Policy & Order Cancellations", path: "#" },
+      { name: "Showroom Address", path: "#" }
+    ] 
+  },
+  { 
+    title: "Company", 
+    links: [
+      { name: "Wholesale Inquiries & Business Collaboration", path: "#" },
+      { name: "Skin Care Blog", path: "#" },
+      { name: "About Our Company", path: "#" },
+      { name: "Privacy policy", path: "#" }
+    ] 
+  },
+  { 
+    title: "Social Media", 
+    links: [
+      { name: "Facebook Page", path: "https://facebook.com/skincarebddotcom" },
+      { name: "Facebook Group", path: "#" },
+      { name: "Instagram", path: "https://instagram.com/skincarebd.co" },
+      { name: "Tiktok", path: "https://tiktok.com/@skincarebd.com" }
+    ] 
+  },
+  { 
+    title: "Profile", 
+    links: [
+      { name: "My account", path: "/account" },
+      { name: "Checkout", path: "/checkout" },
+      { name: "Wishlist", path: "/account" }, // Placeholder for now
+      { name: "Cart", path: "/cart" }
+    ] 
+  }
 ];
 
 export function Footer() {
@@ -20,9 +53,9 @@ export function Footer() {
               </h4>
               <ul className="space-y-3">
                 {col.links.map((link) => (
-                  <li key={link}>
+                  <li key={link.name}>
                     <Link 
-                      to="#" 
+                      to={link.path} 
                       // THE HOVER MAGIC HAPPENS HERE
                       className="group relative flex items-center font-mont text-[14px] text-ink transition-colors hover:text-muted"
                     >
@@ -33,7 +66,7 @@ export function Footer() {
                       />
                       {/* Text shifts right slightly */}
                       <span className="transition-transform duration-300 group-hover:translate-x-5">
-                        {link}
+                        {link.name}
                       </span>
                     </Link>
                   </li>

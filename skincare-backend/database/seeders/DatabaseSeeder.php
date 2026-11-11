@@ -15,10 +15,11 @@ class DatabaseSeeder extends Seeder
      */
    public function run(): void
 {
-    $this->call([
+        $this->call([
         RoleSeeder::class,
-        AdminUserSeeder::class, // <-- Add this line
+        AdminUserSeeder::class,
         ProductSeeder::class,
+        CategoryBrandSeeder::class, // <-- Add this
     ]);
 }
 }

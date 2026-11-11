@@ -9,14 +9,25 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    // Get all products (Admin view)
     public function index()
     {
-        return response()->json(Product::with(['category', 'brand'])->latest()->paginate(15));
+        $products = Product::with(['category', 'brand'])->latest()->paginate(10);
+        
+        $products->getCollection()->transform(function ($product) {
+            $product->image_url = $product->getFirstMediaUrl('products') ?: 'https://via.placeholder.com/150';
+            return $product;
+        });
+
+        return response()->json($products);
     }
 
-    // Create a new product
-    public function store(Request $request)
+    public function show(Product $product)
+    {
+        $product->image_url = $product->getFirstMediaUrl('products');
+        return response()->json($product);
+    }
+
+        public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -24,53 +35,47 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'sale_price' => 'nullable|numeric|min:0|lt:price',
+            // Changed lt:price to lte:price (less than or equal to) just in case
+            'sale_price' => 'nullable|numeric|min:0|lte:price', 
             'stock' => 'required|integer|min:0',
-            'is_active' => 'boolean',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
+            'image' => 'nullable|image|max:2048' // Max 2MB
         ]);
 
         $validated['slug'] = Str::slug($validated['name']) . '-' . uniqid();
-        
+        $validated['is_active'] = true;
+
         $product = Product::create($validated);
 
-        // Handle Image Upload (Spatie MediaLibrary)
         if ($request->hasFile('image')) {
             $product->addMediaFromRequest('image')->toMediaCollection('products');
         }
 
-        return response()->json([
-            'message' => 'Product created successfully',
-            'product' => $product->load(['category', 'brand'])
-        ], 201);
+        return response()->json(['message' => 'Product created', 'product' => $product], 201);
     }
 
-    // Update a product
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'price' => 'sometimes|numeric|min:0',
+            'name' => 'required|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'brand_id' => 'nullable|exists:brands,id',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
-            'stock' => 'sometimes|integer|min:0',
-            'is_active' => 'boolean',
+            'stock' => 'required|integer|min:0',
             'image' => 'nullable|image|max:2048'
         ]);
 
         $product->update($validated);
 
         if ($request->hasFile('image')) {
-            $product->clearMediaCollection('products'); // Delete old image
+            $product->clearMediaCollection('products');
             $product->addMediaFromRequest('image')->toMediaCollection('products');
         }
 
-        return response()->json([
-            'message' => 'Product updated successfully',
-            'product' => $product->load(['category', 'brand'])
-        ]);
+        return response()->json(['message' => 'Product updated', 'product' => $product]);
     }
 
-    // Delete a product
     public function destroy(Product $product)
     {
         $product->delete();

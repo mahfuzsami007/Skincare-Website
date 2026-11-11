@@ -90,5 +90,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Admin Orders
         Route::get('/orders', [OrderController::class, 'index']);
         Route::put('/orders/{order}/status', [OrderController::class, 'updateStatus']);
+        Route::get('/categories', fn() => response()->json(\App\Models\Category::all()));
+        Route::get('/brands', fn() => response()->json(\App\Models\Brand::all()));
     });
 });

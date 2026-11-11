@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/logo/skincarelogo-1.png";
 
 const navLinks = [
-  { label: "BRANDS", href: "#" },
+  { label: "SHOP", href: "/shop" },
   { label: "SKIN CARE", href: "#" },
   { label: "HAIR & BODY", href: "#" },
   { label: "CLEARANCE SALE", href: "#" },
