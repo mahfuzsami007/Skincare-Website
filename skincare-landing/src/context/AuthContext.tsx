@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import type { ReactNode } from "react"; // <-- Type-only import fix
+import type { ReactNode } from "react"; // Type-only import
 import api from "../lib/axios";
 
 type User = {
@@ -13,7 +13,8 @@ type AuthContextType = {
   role: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  // UPDATE 1: Tell TS that login returns a Promise of a string (the role)
+  login: (email: string, password: string) => Promise<string>;
   register: (name: string, email: string, password: string, password_confirmation: string) => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -51,6 +52,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("token", token);
     setUser(user);
     setRole(role);
+    
+    // UPDATE 2: Actually return the role here
+    return role; 
   };
 
   const register = async (name: string, email: string, password: string, password_confirmation: string) => {

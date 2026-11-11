@@ -1,16 +1,21 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use App\Models\Product;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\ProductController;
+use App\Http\Controllers\Api\Admin\OrderController;
 
 // --- Public Routes ---
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Public Product Routes (Paginated)
+// Public Products API
 Route::get('/products', function (Request $request) {
     try {
         $query = Product::where('is_active', true);
@@ -28,7 +33,6 @@ Route::get('/products', function (Request $request) {
 
         $products = $query->paginate(12);
 
-        // Fallback images in case Spatie failed to download them
         $fallbackImages = [
             1 => 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=600&auto=format&fit=crop',
             2 => 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=600&auto=format&fit=crop',
@@ -45,12 +49,8 @@ Route::get('/products', function (Request $request) {
         ];
 
         $products->getCollection()->transform(function ($product) use ($fallbackImages) {
-            // Try to get Spatie Media URL
             $mediaUrl = $product->getFirstMediaUrl('products');
-            
-            // If Spatie is empty, use the fallback image for that ID
             $product->image_url = $mediaUrl ?: ($fallbackImages[$product->id] ?? 'https://via.placeholder.com/600');
-            
             return $product;
         });
 
@@ -60,30 +60,35 @@ Route::get('/products', function (Request $request) {
     }
 });
 
-Route::get('/products/{slug}', function ($slug) {
-    $product = Product::where('slug', $slug)->with(['category', 'brand'])->firstOrFail();
-    $product->image_url = $product->getFirstMediaUrl('products') ?: 'https://via.placeholder.com/600';
-    return response()->json($product);
-});
-
-// --- Protected Routes ---
+// --- Protected Routes (Requires Login) ---
 Route::middleware('auth:sanctum')->group(function () {
+    // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [AuthController::class, 'profile']);
     
+    // Cart
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart', [CartController::class, 'store']);
     Route::put('/cart/{cartItem}', [CartController::class, 'update']);
     Route::delete('/cart/{cartItem}', [CartController::class, 'destroy']);
+    
+    // Checkout & Orders (User)
+    Route::post('/checkout', [CheckoutController::class, 'store']);
+    Route::get('/orders', [AccountController::class, 'getOrders']);
+    Route::post('/orders/{order}/return', [AccountController::class, 'requestReturn']);
 
-        Route::put('/profile', [\App\Http\Controllers\Api\AccountController::class, 'updateProfile']);
+    // Account Details & Addresses
+    Route::put('/profile', [AccountController::class, 'updateProfile']);
+    Route::get('/addresses', [AccountController::class, 'getAddresses']);
+    Route::post('/addresses', [AccountController::class, 'saveAddress']);
     
-    Route::get('/addresses', [\App\Http\Controllers\Api\AccountController::class, 'getAddresses']);
-    Route::post('/addresses', [\App\Http\Controllers\Api\AccountController::class, 'saveAddress']);
-    
-    Route::get('/orders', [\App\Http\Controllers\Api\AccountController::class, 'getOrders']);
-    
+    // --- Admin Only Routes ---
     Route::middleware('role:admin')->prefix('admin')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index']);
         Route::apiResource('products', ProductController::class);
+        
+        // Admin Orders
+        Route::get('/orders', [OrderController::class, 'index']);
+        Route::put('/orders/{order}/status', [OrderController::class, 'updateStatus']);
     });
 });

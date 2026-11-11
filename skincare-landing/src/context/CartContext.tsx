@@ -22,6 +22,7 @@ type CartContextType = {
   updateQuantity: (cartItemId: number, quantity: number) => Promise<void>;
   removeFromCart: (cartItemId: number) => Promise<void>;
   cartCount: number;
+  fetchCart: () => Promise<void>; // <-- ADD THIS LINE
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -46,17 +47,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchCart();
-    if (!isAuthenticated) setCart([]); // Clear cart state on logout
+    if (!isAuthenticated) setCart([]);
   }, [isAuthenticated]);
 
-    const addToCart = async (productId: number, quantity: number) => {
+  const addToCart = async (productId: number, quantity: number) => {
     try {
       await api.post("/cart", { product_id: productId, quantity });
-      await fetchCart(); // Refresh cart
+      await fetchCart();
     } catch (error: any) {
       console.log("Full Error:", error);
       const errMsg = error.response?.data?.error || error.response?.data?.message || "Failed to add to cart.";
-      alert(errMsg); // This should now show the exact Laravel error!
+      alert(errMsg);
     }
   };
 
@@ -81,7 +82,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart, isLoading, addToCart, updateQuantity, removeFromCart, cartCount }}>
+    <CartContext.Provider 
+      value={{ 
+        cart, 
+        isLoading, 
+        addToCart, 
+        updateQuantity, 
+        removeFromCart, 
+        cartCount,
+        fetchCart // <-- ADD THIS TO THE VALUE
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

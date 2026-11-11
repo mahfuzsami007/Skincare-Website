@@ -3,9 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { X, ChevronLeft, ChevronDown } from "lucide-react";
 import { useCart } from "../context/CartContext";
 
+
 export function Cart() {
   const { cart, updateQuantity, removeFromCart, isLoading } = useCart();
   const navigate = useNavigate();
+   <button 
+     onClick={() => navigate("/checkout")}
+      className="mt-8 w-full bg-black py-4 font-mont text-[13px] font-bold uppercase tracking-wider text-white transition hover:bg-gray-800"
+    >
+  Proceed to Checkout
+</button>
   
   // State for shipping
   const [shippingZone, setShippingZone] = useState<"dhaka" | "outside">("dhaka");

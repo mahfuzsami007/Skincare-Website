@@ -1,14 +1,15 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Address;
+use App\Models\Order; // <-- ADDED THIS
 use Illuminate\Support\Facades\Hash;
 
 class AccountController extends Controller
 {
-    // Update User Details
     public function updateProfile(Request $request)
     {
         $user = $request->user();
@@ -31,13 +32,11 @@ class AccountController extends Controller
         return response()->json(['message' => 'Profile updated', 'user' => $user]);
     }
 
-    // Get Addresses
     public function getAddresses(Request $request)
     {
         return response()->json($request->user()->addresses);
     }
 
-    // Create or Update Address
     public function saveAddress(Request $request)
     {
         $request->validate([
@@ -58,10 +57,24 @@ class AccountController extends Controller
         return response()->json(['message' => 'Address saved', 'address' => $address]);
     }
 
-    // Get Orders
     public function getOrders(Request $request)
     {
-        $orders = $request->user()->orders()->with('items')->latest()->get();
+        $orders = $request->user()->orders()->latest()->get();
         return response()->json($orders);
+    }
+
+    public function requestReturn(Request $request, Order $order)
+    {
+        if ($order->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($order->status !== 'delivered') {
+            return response()->json(['message' => 'Only delivered orders can be returned'], 400);
+        }
+
+        $order->update(['status' => 'returned']);
+
+        return response()->json(['message' => 'Return requested successfully', 'order' => $order]);
     }
 }

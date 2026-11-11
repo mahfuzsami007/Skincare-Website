@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
@@ -12,15 +12,29 @@ import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Cart } from "./pages/Cart";
 import { Shop } from "./pages/Shop";
+import { Checkout } from "./pages/Checkout";
+import { OrderConfirmation } from "./pages/OrderConfirmation";
 import { newArrivals, bestSelling, saleProducts, type Product } from "./data/products";
 
-// Account Layout & Pages
+// Account Pages
 import { AccountLayout } from "./pages/account/AccountLayout";
 import { DashboardHome } from "./pages/account/DashboardHome";
 import { Orders } from "./pages/account/Orders";
 import { Offers } from "./pages/account/Offers";
 import { Addresses } from "./pages/account/Addresses";
 import { AccountDetails } from "./pages/account/AccountDetails";
+
+// Admin Pages
+import { AdminLayout } from "./pages/admin/AdminLayout";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminPOS } from "./pages/admin/AdminPOS";
+import { AdminProducts } from "./pages/admin/AdminProducts";
+import { AdminPaymentVerification } from "./pages/admin/AdminPaymentVerification";
+import { AdminWholesale } from "./pages/admin/AdminWholesale";
+import { AdminSales } from "./pages/admin/AdminSales";
+import { AdminCustomers } from "./pages/admin/AdminCustomers";
+import { AdminCTA } from "./pages/admin/AdminCTA";
+import { AdminOrders } from "./pages/admin/AdminOrders";
 
 export default function App() {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
@@ -51,6 +65,12 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
 
+              {/* Checkout Pages */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/order-confirmation" element={<OrderConfirmation />} />
+              </Route>
+
               {/* Protected Account Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/account" element={<AccountLayout />}>
@@ -59,6 +79,30 @@ export default function App() {
                   <Route path="offers" element={<Offers />} />
                   <Route path="addresses" element={<Addresses />} />
                   <Route path="details" element={<AccountDetails />} />
+                </Route>
+              </Route>
+
+              {/* Admin Only Routes */}
+              <Route element={<ProtectedRoute requireAdmin={true} />}>
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<AdminDashboard />} />
+                  
+                  <Route path="pos">
+                    <Route path="manager" element={<AdminPOS />} />
+                    <Route path="config" element={<AdminPOS />} />
+                  </Route>
+                  
+                  <Route path="products">
+                    <Route index element={<AdminProducts />} />
+                    <Route path="new" element={<AdminProducts isAddNew={true} />} />
+                  </Route>
+                  
+                  <Route path="verification" element={<AdminPaymentVerification />} />
+                  <Route path="wholesale" element={<AdminWholesale />} />
+                  <Route path="sales" element={<AdminSales />} />
+                  <Route path="customers" element={<AdminCustomers />} />
+                  <Route path="cta" element={<AdminCTA />} />
+                  <Route path="orders" element={<AdminOrders />} /> {/* <-- ADDED ADMIN ORDERS ROUTE */}
                 </Route>
               </Route>
 

@@ -8,7 +8,7 @@ export function Login() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
-  const { login } = useAuth();
+  const { login } = useAuth(); // We only need 'login' from context
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,8 +17,15 @@ export function Login() {
     setError("");
 
     try {
-      await login(email, password);
-      navigate("/"); // Redirect to home on success
+      // Call the context login function, which returns the role
+      const userRole = await login(email, password);
+      
+      // Redirect based on the returned role
+      if (userRole === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err: any) {
       if (err.response?.data?.errors) {
         setError(Object.values(err.response.data.errors).flat().join(" "));

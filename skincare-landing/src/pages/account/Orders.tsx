@@ -13,19 +13,40 @@ export function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchOrders = async () => {
+    try {
+      const res = await api.get("/orders");
+      setOrders(res.data);
+    } catch (error) {
+      console.error("Failed to fetch orders", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await api.get("/orders");
-        setOrders(res.data);
-      } catch (error) {
-        console.error("Failed to fetch orders", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchOrders();
   }, []);
+
+  const handleReturn = async (orderId: number) => {
+    if (!confirm("Are you sure you want to return this order?")) return;
+    try {
+      await api.post(`/orders/${orderId}/return`);
+      fetchOrders(); // Refresh list
+    } catch (error) {
+      alert("Failed to request return");
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "packed": return "bg-blue-100 text-blue-800";
+      case "shipped": return "bg-yellow-100 text-yellow-800";
+      case "delivered": return "bg-green-100 text-green-800";
+      case "returned": return "bg-red-100 text-red-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
+  };
 
   if (isLoading) return <p className="font-mont text-muted">Loading orders...</p>;
 
@@ -58,12 +79,18 @@ export function Orders() {
             <tr key={order.id} className="border-b border-line last:border-0 hover:bg-gray-50">
               <td className="p-4 font-bold text-ink">#{order.id}</td>
               <td className="p-4 text-muted">{new Date(order.created_at).toLocaleDateString()}</td>
-              <td className="p-4 text-muted capitalize">{order.status}</td>
+              <td className="p-4">
+                <span className={`px-2 py-1 text-[11px] font-bold uppercase tracking-wider ${getStatusColor(order.status)}`}>
+                  {order.status}
+                </span>
+              </td>
               <td className="p-4 font-bold text-ink">৳{parseFloat(order.total_amount).toLocaleString()}</td>
               <td className="p-4">
-                <button className="bg-black px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-white hover:bg-gray-800">
-                  View
-                </button>
+                {order.status === "delivered" && (
+                  <button onClick={() => handleReturn(order.id)} className="text-red-500 hover:underline text-[12px] uppercase font-bold">
+                    Return
+                  </button>
+                )}
               </td>
             </tr>
           ))}
